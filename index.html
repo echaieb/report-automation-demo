@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>أتمتة التقارير وتحليل البيانات (نموذج تجريبي)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f6f9;--card:#fff;--ink:#12263a;--mut:#5b6b7a;--line:#dde3ea;--acc:#1fa7b5;--navy:#0e1f33}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0b1623;--card:#13263a;--ink:#e8eef4;--mut:#9fb0c0;--line:#25405a;--acc:#4cc3d0;--navy:#071019}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0b1623;--card:#13263a;--ink:#e8eef4;--mut:#9fb0c0;--line:#25405a;--acc:#4cc3d0;--navy:#071019}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Cairo',system-ui,sans-serif}
+header{background:var(--navy);color:#fff;padding:22px 20px;border-bottom:4px solid var(--acc)}header h1{margin:0;font-size:22px}header p{margin:4px 0 0;font-size:13px;color:#b9c7d4}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:13px monospace;padding:8px;direction:ltr}
+button,a.btn{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:8px 14px;background:var(--acc);color:#04222a;font-weight:700;text-decoration:none;display:inline-block}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.k b{display:block;font-size:22px}.k span{font-size:12px;color:var(--mut)}
+footer{padding:14px;text-align:center;font-size:12px;color:var(--mut)}
+</style>
+</head>
+<body>
+<header><h1>أتمتة التقارير وتحليل البيانات</h1><p>الصق بيانات المبيعات بصيغة CSV وسيُنتج التقرير الإداري تلقائيًا في ثوانٍ. نموذج تجريبي، والبيانات لا تغادر متصفحك.</p></header>
+<main>
+<div class="card"><label for="d" style="font-size:13px;color:var(--mut)">البيانات (شهر,منتج,مبيعات)</label>
+<textarea id="d" rows="9">month,product,sales
+يناير,برنامج أ,12000
+يناير,برنامج ب,8000
+فبراير,برنامج أ,15000
+فبراير,برنامج ب,9500
+مارس,برنامج أ,18000
+مارس,برنامج ب,7000
+أبريل,برنامج أ,21000
+أبريل,برنامج ب,11000</textarea>
+<div style="margin-top:10px;display:flex;gap:8px"><button id="go">إنشاء التقرير</button><button id="cp" style="background:transparent;border:1px solid var(--line);color:var(--ink)">نسخ نص التقرير</button></div></div>
+<div id="out"></div>
+</main>
+<footer>نموذج توضيحي من إعداد هيثم الشايب لإظهار مهارة أتمتة التقارير وتحليل البيانات. الأرقام افتراضية.</footer>
+<script>
+var rep="";
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function fmt(n){return Math.round(n).toLocaleString("ar-EG")}
+function run(){
+var out=document.getElementById("out");out.textContent="";
+var lines=document.getElementById("d").value.trim().split(/\n/).slice(1),M={},P={},T=0,N=0;
+lines.forEach(function(l){var c=l.split(",");var v=parseFloat(c[2]);if(c.length<3||isNaN(v))return;
+M[c[0].trim()]=(M[c[0].trim()]||0)+v;P[c[1].trim()]=(P[c[1].trim()]||0)+v;T+=v;N++});
+if(!N){out.appendChild(el("div","card","لا توجد بيانات صالحة. استخدم الصيغة: شهر,منتج,مبيعات"));return}
+var ms=Object.keys(M),ps=Object.keys(P);
+var bm=ms.reduce(function(a,b){return M[a]>=M[b]?a:b}),bp=ps.reduce(function(a,b){return P[a]>=P[b]?a:b});
+var first=M[ms[0]],last=M[ms[ms.length-1]],gr=first?Math.round((last-first)/first*100):0;
+var g=el("div","card g");[["إجمالي المبيعات",fmt(T)],["متوسط الشهر",fmt(T/ms.length)],["أفضل شهر",bm],["أفضل منتج",bp],["النمو من أول لآخر شهر",gr+"%"]].forEach(function(x){var k=el("div","k");k.appendChild(el("b","",x[1]));k.appendChild(el("span","",x[0]));g.appendChild(k)});
+out.appendChild(g);
+var c=el("div","card");c.appendChild(el("b","","المبيعات الشهرية"));var mx=Math.max.apply(null,ms.map(function(m){return M[m]}));
+ms.forEach(function(m){var r=el("div");r.style.cssText="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px";
+var a=el("span","",m);a.style.width="70px";var b=el("div");b.style.cssText="height:16px;border-radius:4px;background:var(--acc);width:"+Math.round(M[m]/mx*100)+"%;min-width:2px";
+var v=el("span","",fmt(M[m]));r.appendChild(a);r.appendChild(b);r.appendChild(v);c.appendChild(r)});out.appendChild(c);
+rep="تقرير المبيعات\nإجمالي المبيعات: "+fmt(T)+"\nمتوسط الشهر: "+fmt(T/ms.length)+"\nأفضل شهر: "+bm+" ("+fmt(M[bm])+")\nأفضل منتج: "+bp+" ("+fmt(P[bp])+")\nنمو المبيعات من "+ms[0]+" إلى "+ms[ms.length-1]+": "+gr+"%";
+var t=el("div","card");t.appendChild(el("b","","نص التقرير الجاهز للإرسال"));var pre=el("pre","",rep);pre.style.cssText="white-space:pre-wrap;font:inherit;margin:8px 0 0";t.appendChild(pre);out.appendChild(t)}
+document.getElementById("go").onclick=run;
+document.getElementById("cp").onclick=function(){try{navigator.clipboard.writeText(rep);this.textContent="تم النسخ"}catch(e){}};
+run();
+</script>
+</body>
+</html>
